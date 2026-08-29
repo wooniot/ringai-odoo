@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- niet-geheime defaults; wachtwoord via Instellingen -> RingAI -->
+        <function model="ir.config_parameter" name="set_param">
+            <value>ringai_connector.db_host</value><value>host.docker.internal</value>
+        </function>
+        <function model="ir.config_parameter" name="set_param">
+            <value>ringai_connector.db_port</value><value>5433</value>
+        </function>
+        <function model="ir.config_parameter" name="set_param">
+            <value>ringai_connector.db_dbname</value><value>aireceptionist</value>
+        </function>
+        <function model="ir.config_parameter" name="set_param">
+            <value>ringai_connector.db_user</value><value>aireceptionist</value>
+        </function>
+
+        <!-- auto-sync elke 15 minuten -->
+        <record id="ir_cron_ringai_sync" model="ir.cron">
+            <field name="name">RingAI: sync gesprekken</field>
+            <field name="model_id" ref="model_ringai_call"/>
+            <field name="state">code</field>
+            <field name="code">model.action_sync_all()</field>
+            <field name="interval_number">15</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

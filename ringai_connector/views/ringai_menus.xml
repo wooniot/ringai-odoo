@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_ringai_root" name="RingAI" sequence="85"
+              web_icon="ringai_connector,static/description/icon.png"/>
+    <menuitem id="menu_ringai_calls" name="Gesprekken" parent="menu_ringai_root"
+              action="action_ringai_calls" sequence="10"/>
+</odoo>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_ringai_call_list" model="ir.ui.view">
+        <field name="name">ringai.call.list</field>
+        <field name="model">ringai.call</field>
+        <field name="arch" type="xml">
+            <list string="RingAI gesprekken" create="false"
+                  decoration-danger="needs_followup and not followed_up"
+                  decoration-muted="followed_up">
+                <field name="started_at"/>
+                <field name="direction"/>
+                <field name="caller_name"/>
+                <field name="caller_number"/>
+                <field name="partner_id"/>
+                <field name="duration_seconds" string="Duur (s)"/>
+                <field name="summary" optional="show"/>
+                <field name="needs_followup" string="Opvolgen"/>
+                <field name="followed_up" string="Opgevolgd"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_ringai_call_form" model="ir.ui.view">
+        <field name="name">ringai.call.form</field>
+        <field name="model">ringai.call</field>
+        <field name="arch" type="xml">
+            <form string="RingAI gesprek" create="false">
+                <header>
+                    <button name="action_mark_followed_up" type="object"
+                            string="Markeer als opgevolgd" class="btn-primary"
+                            invisible="followed_up or not needs_followup"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="display_title" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="caller_name"/>
+                            <field name="caller_number"/>
+                            <field name="direction"/>
+                            <field name="to_number"/>
+                        </group>
+                        <group>
+                            <field name="started_at"/>
+                            <field name="ended_at"/>
+                            <field name="duration_seconds"/>
+                            <field name="needs_followup"/>
+                            <field name="followed_up"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="AI-samenvatting">
+                            <field name="summary" readonly="1"/>
+                            <separator string="Notitie"/>
+                            <field name="user_note"/>
+                        </page>
+                        <page string="Transcript">
+                            <field name="transcript" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_ringai_call_search" model="ir.ui.view">
+        <field name="name">ringai.call.search</field>
+        <field name="model">ringai.call</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="caller_name"/>
+                <field name="caller_number"/>
+                <field name="partner_id"/>
+                <field name="summary"/>
+                <filter name="followup" string="Opvolgen"
+                        domain="[('needs_followup','=',True),('followed_up','=',False)]"/>
+                <filter name="inbound" string="Inkomend" domain="[('direction','=','inbound')]"/>
+                <filter name="outbound" string="Uitgaand" domain="[('direction','=','outbound')]"/>
+                <separator/>
+                <filter name="g_company" string="Bedrijf" context="{'group_by':'company_id'}"/>
+                <filter name="g_direction" string="Richting" context="{'group_by':'direction'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_ringai_calls" model="ir.actions.act_window">
+        <field name="name">Gesprekken</field>
+        <field name="res_model">ringai.call</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_ringai_call_search"/>
+        <field name="context">{'search_default_followup': 0}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Nog geen RingAI-gesprekken</p>
+            <p>Koppel elk bedrijf aan zijn RingAI-tenant (Instellingen -> Bedrijven)
+               en druk op <b>Sync nu</b> onder Instellingen -> RingAI.</p>
+        </field>
+    </record>
+
+    <record id="action_server_ringai_sync" model="ir.actions.server">
+        <field name="name">RingAI: sync nu</field>
+        <field name="model_id" ref="model_ringai_call"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_sync_all()</field>
+    </record>
+</odoo>
