@@ -81,6 +81,15 @@ class RingaiClient(models.AbstractModel):
             if conn is not None:
                 conn.close()
 
+        def _naive(dt):
+            # Odoo Datetime-velden willen naïeve UTC; strip tzinfo
+            if dt is None:
+                return False
+            if getattr(dt, "tzinfo", None) is not None:
+                from datetime import timezone
+                dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+
         out = []
         for r in rows:
             tr = r.get("transcript")
@@ -93,8 +102,8 @@ class RingaiClient(models.AbstractModel):
                 "caller_name": r.get("caller_name") or "",
                 "to_number": r.get("to_number") or "",
                 "direction": (r.get("direction") or "inbound"),
-                "started_at": r.get("started_at"),
-                "ended_at": r.get("ended_at"),
+                "started_at": _naive(r.get("started_at")),
+                "ended_at": _naive(r.get("ended_at")),
                 "duration_seconds": r.get("duration_seconds") or 0,
                 "summary": r.get("summary") or "",
                 "transcript": tr or "",

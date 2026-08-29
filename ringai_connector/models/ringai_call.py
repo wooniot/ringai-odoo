@@ -54,10 +54,7 @@ class RingaiCall(models.Model):
         digits = "".join(ch for ch in number if ch.isdigit())[-9:]
         partner = False
         if digits:
-            partner = Partner.search(
-                ["|", ("phone", "ilike", digits), ("mobile", "ilike", digits)],
-                limit=1,
-            )
+            partner = Partner.search([("phone", "ilike", digits)], limit=1)
         if not partner and name:
             partner = Partner.create({
                 "name": name, "phone": number,
