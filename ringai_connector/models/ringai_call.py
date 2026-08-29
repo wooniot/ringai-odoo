@@ -54,7 +54,11 @@ class RingaiCall(models.Model):
         digits = "".join(ch for ch in number if ch.isdigit())[-9:]
         partner = False
         if digits:
-            partner = Partner.search([("phone", "ilike", digits)], limit=1)
+            # multi-company veilig: alleen dit bedrijf of gedeelde contacten
+            partner = Partner.search([
+                ("phone", "ilike", digits),
+                "|", ("company_id", "=", company.id), ("company_id", "=", False),
+            ], limit=1)
         if not partner and name:
             partner = Partner.create({
                 "name": name, "phone": number,
@@ -87,6 +91,10 @@ class RingaiCall(models.Model):
                 "user_note": r["user_note"],
             }
             if existing:
+                # partner alsnog koppelen als die eerder niet matchte
+                if not existing.partner_id:
+                    vals["partner_id"] = self._match_partner(
+                        company, r["caller_number"], r["caller_name"])
                 existing.write(vals)
                 rec = existing
             else:
