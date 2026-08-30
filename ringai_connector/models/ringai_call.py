@@ -68,10 +68,10 @@ class RingaiCall(models.Model):
 
     @api.model
     def _sync_company(self, company):
-        tenant = (company.ringai_tenant_id or "").strip()
-        if not tenant:
+        key = (company.ringai_api_key or "").strip()
+        if not key:
             return 0
-        rows = self.env["ringai.client"]._fetch_calls(tenant)
+        rows = self.env["ringai.client"]._fetch_calls(key)
         made = 0
         for r in rows:
             existing = self.search([("ringai_id", "=", r["ringai_id"])], limit=1)
@@ -133,7 +133,7 @@ class RingaiCall(models.Model):
     @api.model
     def action_sync_all(self):
         total = 0
-        for company in self.env["res.company"].search([("ringai_tenant_id", "!=", False)]):
+        for company in self.env["res.company"].search([("ringai_api_key", "!=", False)]):
             total += self._sync_company(company)
         _logger.info("RingAI sync: %s nieuwe gesprekken", total)
         return {

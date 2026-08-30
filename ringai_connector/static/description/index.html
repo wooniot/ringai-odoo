@@ -17,12 +17,12 @@
   <img src="screenshot_call.png" style="width:100%;border:1px solid #e2e6f0;border-radius:8px;margin:8px 0"/>
 
   <h2 style="color:#14285a">Hoe het werkt</h2>
-  <p style="font-size:15px;line-height:1.7"><b>RingAI</b> levert de spraak en de intelligentie (AI-telefoniste op Voys/SIP); Odoo is je klant- en opvolgsysteem. De connector haalt de gesprekken op en koppelt ze aan je contacten. Instellen onder <b>Instellingen -> RingAI</b>: verbinding testen en syncen. Een geplande taak synct automatisch elke 15 minuten.</p>
+  <p style="font-size:15px;line-height:1.7"><b>RingAI</b> levert de spraak en de intelligentie (AI-telefoniste op Voys/SIP); Odoo is je klant- en opvolgsysteem. De connector haalt de gesprekken op via de beveiligde RingAI-API (per-bedrijf connector-key) en koppelt ze aan je contacten. Base URL instellen onder <b>Instellingen -> RingAI</b>, de connector-key per bedrijf onder <b>Instellingen -> Bedrijven</b>. Een geplande taak synct automatisch elke 15 minuten.</p>
 
   <h2 style="color:#14285a">Vereisten</h2>
   <ul style="font-size:15px;line-height:1.7">
-    <li>Een actief RingAI-account (ringai.nl) met minstens één tenant.</li>
-    <li>Per Odoo-bedrijf de RingAI tenant-id ingevuld (Instellingen -> Bedrijven).</li>
+    <li>Een actief RingAI-account (ringai.nl).</li>
+    <li>Per Odoo-bedrijf een RingAI <b>connector-key</b> (Instellingen -> Bedrijven). De key bepaalt van welke tenant de gesprekken komen; geen databasetoegang nodig.</li>
   </ul>
 
   <p style="font-size:13px;color:#5d6b86;margin-top:24px">Woon IoT BV · <a href="https://ringai.nl" style="color:#14285a">ringai.nl</a> · info@ringai.nl</p>

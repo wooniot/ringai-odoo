@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
                 <group string="RingAI">
+                    <field name="ringai_api_key" password="True"/>
                     <field name="ringai_tenant_id"/>
                 </group>
             </xpath>

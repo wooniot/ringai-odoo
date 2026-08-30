@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "RingAI Voice Connector",
-    "version": "19.0.1.0.0",
+    "version": "19.0.2.0.0",
     "category": "Sales/CRM",
     "summary": "Breng je RingAI AI-telefoniste in Odoo — gesprekken, AI-samenvattingen en automatische terugbel-taken per klant.",
     "description": """
@@ -24,7 +24,7 @@ RingAI levert de spraak + intelligentie; Odoo is je klant- en opvolgsysteem.
     "website": "https://ringai.nl",
     "license": "LGPL-3",
     "depends": ["base", "mail", "contacts"],
-    "external_dependencies": {"python": ["psycopg2"]},
+    "external_dependencies": {"python": ["requests"]},
     "data": [
         "security/ir.model.access.csv",
         "data/ir_config_parameter.xml",

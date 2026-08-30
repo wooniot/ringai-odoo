@@ -1,112 +1,88 @@
 # -*- coding: utf-8 -*-
-"""RingAI data-access layer — GEISOLEERD.
+"""RingAI data-access — via de RingAI read-API (per-tenant connector-key).
 
-De rest van de module praat alleen met `env['ringai.client']._fetch_calls(...)`.
-Nu leest die read-only rechtstreeks uit de RingAI-database (call_logs) op dezelfde
-host. Voor App Store-distributie wordt enkel deze methode vervangen door een
-HTTP-call naar een RingAI read-API (zelfde returnvorm) — de rest blijft gelijk.
+Geen DB-credentials bij de klant, geen cross-tenant toegang. De klant vult per
+Odoo-bedrijf zijn eigen connector-key in (Instellingen -> Bedrijven); de base URL
+is globaal (Instellingen -> RingAI).
 """
-import json
 import logging
+from datetime import datetime, timezone
 
 from odoo import api, models
 
 _logger = logging.getLogger(__name__)
 
-# defaults passen bij de RingAI-testhost (ringai-db op 127.0.0.1:5433, via docker
-# host.docker.internal). Overschrijfbaar via Instellingen -> RingAI.
-DEFAULTS = {
-    "host": "host.docker.internal",
-    "port": "5433",
-    "dbname": "aireceptionist",
-    "user": "aireceptionist",
-    "password": "",  # NOOIT hardcoden — via Instellingen -> RingAI (config parameter)
-}
+DEFAULT_BASE_URL = "https://ringai.nl"
 
 
 class RingaiClient(models.AbstractModel):
     _name = "ringai.client"
-    _description = "RingAI data-access (read-only)"
+    _description = "RingAI API-client (read-only)"
 
     @api.model
-    def _conn_params(self):
-        icp = self.env["ir.config_parameter"].sudo()
-        return {
-            k: icp.get_param("ringai_connector.db_%s" % k, DEFAULTS[k])
-            for k in DEFAULTS
-        }
+    def _base_url(self):
+        base = self.env["ir.config_parameter"].sudo().get_param(
+            "ringai_connector.base_url") or DEFAULT_BASE_URL
+        return base.rstrip("/")
 
     @api.model
-    def _fetch_calls(self, tenant_id, limit=200):
-        """Lijst call_logs voor een RingAI tenant (uuid, als string).
-
-        Returnt een lijst dicts met genormaliseerde sleutels. Leeg bij lege
-        tenant of fout (fout wordt gelogd, niet doorgegooid) zodat een sync
-        van andere bedrijven doorloopt.
-        """
-        if not tenant_id:
-            return []
+    def _get(self, path, api_key):
+        """GET op de RingAI-API met de connector-key. None bij fout/geen key."""
+        if not api_key:
+            return None
         try:
-            import psycopg2
-            import psycopg2.extras
+            import requests
         except Exception:
-            _logger.error("psycopg2 niet beschikbaar op de Odoo-server")
-            return []
-        p = self._conn_params()
-        sql = """
-            SELECT id::text AS ringai_id, tenant_id::text AS tenant_id,
-                   caller_number, caller_name, to_number, direction,
-                   started_at, ended_at, duration_seconds, summary,
-                   transcript, needs_followup, followed_up, user_note
-            FROM call_logs
-            WHERE tenant_id = %s
-            ORDER BY started_at DESC NULLS LAST
-            LIMIT %s
-        """
-        conn = None
+            _logger.error("python 'requests' ontbreekt op de Odoo-server")
+            return None
+        url = self._base_url() + path
         try:
-            conn = psycopg2.connect(
-                host=p["host"], port=p["port"], dbname=p["dbname"],
-                user=p["user"], password=p["password"], connect_timeout=8,
-            )
-            conn.set_session(readonly=True, autocommit=True)
-            cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-            cur.execute(sql, (tenant_id, limit))
-            rows = cur.fetchall()
+            resp = requests.get(url, headers={"X-Connector-Key": api_key}, timeout=15)
         except Exception as exc:
-            # nooit secrets loggen — alleen het type
-            _logger.warning("RingAI fetch faalde: %s", type(exc).__name__)
+            _logger.warning("RingAI-API onbereikbaar: %s", type(exc).__name__)
+            return None
+        if resp.status_code == 401:
+            _logger.warning("RingAI-API 401 (ongeldige connector-key)")
+            return None
+        if resp.status_code != 200:
+            _logger.warning("RingAI-API status %s", resp.status_code)
+            return None
+        try:
+            return resp.json()
+        except Exception:
+            return None
+
+    @api.model
+    def _parse_dt(self, s):
+        """ISO-string (evt. met tz) -> naïeve UTC voor Odoo Datetime-velden."""
+        if not s:
+            return False
+        try:
+            dt = datetime.fromisoformat(s)
+        except Exception:
+            return False
+        if dt.tzinfo is not None:
+            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+        return dt
+
+    @api.model
+    def _fetch_calls(self, api_key, limit=200):
+        data = self._get("/api/connector/calls?limit=%d" % int(limit), api_key)
+        if not data:
             return []
-        finally:
-            if conn is not None:
-                conn.close()
-
-        def _naive(dt):
-            # Odoo Datetime-velden willen naïeve UTC; strip tzinfo
-            if dt is None:
-                return False
-            if getattr(dt, "tzinfo", None) is not None:
-                from datetime import timezone
-                dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
-            return dt
-
         out = []
-        for r in rows:
-            tr = r.get("transcript")
-            if isinstance(tr, (dict, list)):
-                tr = json.dumps(tr, ensure_ascii=False, indent=2)
+        for r in data.get("calls", []):
             out.append({
-                "ringai_id": r["ringai_id"],
-                "tenant_id": r["tenant_id"],
+                "ringai_id": r.get("id"),
                 "caller_number": r.get("caller_number") or "",
                 "caller_name": r.get("caller_name") or "",
                 "to_number": r.get("to_number") or "",
-                "direction": (r.get("direction") or "inbound"),
-                "started_at": _naive(r.get("started_at")),
-                "ended_at": _naive(r.get("ended_at")),
+                "direction": r.get("direction") or "inbound",
+                "started_at": self._parse_dt(r.get("started_at")),
+                "ended_at": self._parse_dt(r.get("ended_at")),
                 "duration_seconds": r.get("duration_seconds") or 0,
                 "summary": r.get("summary") or "",
-                "transcript": tr or "",
+                "transcript": r.get("transcript") or "",
                 "needs_followup": bool(r.get("needs_followup")),
                 "followed_up": bool(r.get("followed_up")),
                 "user_note": r.get("user_note") or "",
@@ -114,23 +90,8 @@ class RingaiClient(models.AbstractModel):
         return out
 
     @api.model
-    def _test_connection(self):
-        """Simpele ping: tel tenants. Geeft (ok, msg)."""
-        try:
-            import psycopg2
-        except Exception:
-            return False, "psycopg2 ontbreekt op de server"
-        p = self._conn_params()
-        try:
-            conn = psycopg2.connect(
-                host=p["host"], port=p["port"], dbname=p["dbname"],
-                user=p["user"], password=p["password"], connect_timeout=8,
-            )
-            conn.set_session(readonly=True, autocommit=True)
-            cur = conn.cursor()
-            cur.execute("SELECT count(*) FROM tenants")
-            n = cur.fetchone()[0]
-            conn.close()
-            return True, "Verbonden met RingAI · %s tenants zichtbaar" % n
-        except Exception as exc:
-            return False, "Verbinding mislukt: %s" % type(exc).__name__
+    def _test_connection(self, api_key):
+        data = self._get("/api/connector/me", api_key)
+        if data and data.get("tenant"):
+            return True, "Verbonden met RingAI · tenant: %s" % data["tenant"]
+        return False, "Verbinding mislukt — controleer de base URL en de connector-key."

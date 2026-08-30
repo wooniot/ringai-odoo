@@ -5,25 +5,19 @@ from odoo import _, fields, models
 class ResConfigSettings(models.TransientModel):
     _inherit = "res.config.settings"
 
-    ringai_db_host = fields.Char(
-        string="RingAI host", config_parameter="ringai_connector.db_host",
-        default="host.docker.internal")
-    ringai_db_port = fields.Char(
-        string="RingAI poort", config_parameter="ringai_connector.db_port",
-        default="5433")
-    ringai_db_name = fields.Char(
-        string="RingAI database", config_parameter="ringai_connector.db_dbname",
-        default="aireceptionist")
-    ringai_db_user = fields.Char(
-        string="RingAI gebruiker", config_parameter="ringai_connector.db_user",
-        default="aireceptionist")
-    ringai_db_password = fields.Char(
-        string="RingAI wachtwoord", config_parameter="ringai_connector.db_password")
+    ringai_base_url = fields.Char(
+        string="RingAI base URL",
+        config_parameter="ringai_connector.base_url",
+        default="https://ringai.nl")
 
     def action_ringai_test_connection(self):
         self.ensure_one()
         self.set_values()
-        ok, msg = self.env["ringai.client"]._test_connection()
+        key = self.env.company.ringai_api_key
+        ok, msg = self.env["ringai.client"]._test_connection(key)
+        if not key:
+            ok, msg = False, _("Geen connector-key voor bedrijf %s "
+                               "(Instellingen -> Bedrijven).") % self.env.company.name
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",

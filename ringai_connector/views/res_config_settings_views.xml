@@ -9,35 +9,14 @@
                 <app string="RingAI" name="ringai_connector"
                      logo="/ringai_connector/static/description/icon.png">
                     <block title="Verbinding" name="ringai_conn">
-                        <setting string="RingAI-database"
-                                 help="Read-only bron van de gesprekken (RingAI call_logs).">
-                            <div class="content-group">
-                                <div class="row">
-                                    <label for="ringai_db_host" class="col-3"/>
-                                    <field name="ringai_db_host"/>
-                                </div>
-                                <div class="row">
-                                    <label for="ringai_db_port" class="col-3"/>
-                                    <field name="ringai_db_port"/>
-                                </div>
-                                <div class="row">
-                                    <label for="ringai_db_name" class="col-3"/>
-                                    <field name="ringai_db_name"/>
-                                </div>
-                                <div class="row">
-                                    <label for="ringai_db_user" class="col-3"/>
-                                    <field name="ringai_db_user"/>
-                                </div>
-                                <div class="row">
-                                    <label for="ringai_db_password" class="col-3"/>
-                                    <field name="ringai_db_password" password="True"/>
-                                </div>
-                                <div class="mt-2">
-                                    <button name="action_ringai_test_connection" type="object"
-                                            string="Test verbinding" class="btn-secondary"/>
-                                    <button name="action_ringai_sync_now" type="object"
-                                            string="Sync nu" class="btn-primary ms-2"/>
-                                </div>
+                        <setting string="RingAI base URL"
+                                 help="Doorgaans https://ringai.nl. De connector-key zet je per bedrijf (Instellingen -> Bedrijven).">
+                            <field name="ringai_base_url"/>
+                            <div class="mt-2">
+                                <button name="action_ringai_test_connection" type="object"
+                                        string="Test verbinding" class="btn-secondary"/>
+                                <button name="action_ringai_sync_now" type="object"
+                                        string="Sync nu" class="btn-primary ms-2"/>
                             </div>
                         </setting>
                     </block>

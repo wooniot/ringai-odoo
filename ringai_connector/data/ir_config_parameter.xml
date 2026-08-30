@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <!-- niet-geheime defaults; wachtwoord via Instellingen -> RingAI -->
+        <!-- globale RingAI-API base URL; connector-key staat per bedrijf -->
         <function model="ir.config_parameter" name="set_param">
-            <value>ringai_connector.db_host</value><value>host.docker.internal</value>
-        </function>
-        <function model="ir.config_parameter" name="set_param">
-            <value>ringai_connector.db_port</value><value>5433</value>
-        </function>
-        <function model="ir.config_parameter" name="set_param">
-            <value>ringai_connector.db_dbname</value><value>aireceptionist</value>
-        </function>
-        <function model="ir.config_parameter" name="set_param">
-            <value>ringai_connector.db_user</value><value>aireceptionist</value>
+            <value>ringai_connector.base_url</value><value>https://ringai.nl</value>
         </function>
 
         <!-- auto-sync elke 15 minuten -->
