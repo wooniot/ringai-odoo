@@ -3,22 +3,24 @@
     "name": "RingAI Voice Connector",
     "version": "19.0.2.0.0",
     "category": "Sales/CRM",
-    "summary": "Breng je RingAI AI-telefoniste in Odoo — gesprekken, AI-samenvattingen en automatische terugbel-taken per klant.",
+    "summary": "Show your RingAI AI phone assistant calls in Odoo: AI summaries and automatic call-back tasks per customer.",
     "description": """
 RingAI Voice Connector
 ======================
-Koppelt je RingAI (AI-telefoniste, Voys/SIP) aan Odoo. Inkomende en uitgaande
-gesprekken verschijnen als records op de klant (res.partner), met de door AI
-gegenereerde **samenvatting**, het volledige **transcript**, de duur en de
-gespreksrichting. Gemiste of op te volgen gesprekken worden automatisch een
-**terugbel-activiteit** op de juiste contactpersoon.
+Connects your RingAI voice service (AI phone assistant) to Odoo. Inbound and
+outbound calls appear as records linked to the customer (res.partner), with the
+AI-generated summary, the full transcript, duration and direction. Calls that
+need follow-up automatically become a call-back activity on the right contact.
 
-* **Gesprekslog in Odoo** — beller, samenvatting, transcript, duur, richting, status.
-* **Automatische terugbel-taken** — needs_followup -> mail.activity op de partner.
-* **Per bedrijf** — elk Odoo-bedrijf koppelt aan zijn eigen RingAI-tenant.
-* **AI-terugkoppeling** — de samenvatting en score van RingAI, direct in je CRM.
+* Call log in Odoo: caller, summary, transcript, duration, direction, status.
+* Automatic call-back activities on the partner for calls that need follow-up.
+* Multi-company: each Odoo company connects to its own RingAI tenant.
+* AI feedback from RingAI, directly in your CRM.
 
-RingAI levert de spraak + intelligentie; Odoo is je klant- en opvolgsysteem.
+External service and data: this module requires an active RingAI account. It sends
+only a per-company connector key over HTTPS to authenticate, and reads back that
+tenant's calls (caller number/name, summary, transcript, duration). No database
+access is required and you keep ownership of your data at all times.
 """,
     "author": "Woon IoT BV (RingAI)",
     "website": "https://ringai.nl",

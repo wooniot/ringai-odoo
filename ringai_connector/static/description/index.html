@@ -1,29 +1,36 @@
-<section style="font-family:Arial,Helvetica,sans-serif;max-width:900px;margin:0 auto;color:#0b1a3a">
-  <div style="background:#14285a;color:#fff;padding:28px 32px;border-radius:12px">
-    <h1 style="margin:0;font-size:30px">RingAI Voice Connector</h1>
-    <p style="margin:8px 0 0;font-size:16px;opacity:.9">Je AI-telefoniste in Odoo — gesprekken, AI-samenvattingen en automatische terugbel-taken per klant.</p>
+<section class="oe_container">
+  <div class="oe_row oe_spaced">
+    <h1 class="oe_slogan" style="color:#14285a; margin-bottom:8px">RingAI Voice Connector</h1>
+    <h3 class="oe_slogan" style="color:#5d6b86; font-weight:400">Your AI phone assistant in Odoo — calls, AI summaries and automatic call-back tasks</h3>
   </div>
 
-  <h2 style="color:#14285a;margin-top:26px">Wat het doet</h2>
-  <ul style="font-size:15px;line-height:1.7">
-    <li><b>Gesprekslog in Odoo</b> — elk in- of uitgaand RingAI-gesprek als record: beller, AI-samenvatting, transcript, duur en richting.</li>
-    <li><b>Automatische opvolging</b> — een gesprek dat opgevolgd moet worden wordt een <i>terugbel-activiteit</i> op de juiste contactpersoon.</li>
-    <li><b>Per bedrijf</b> — elk Odoo-bedrijf koppelt aan zijn eigen RingAI-tenant; multi-company out of the box.</li>
-    <li><b>AI-terugkoppeling in je CRM</b> — de samenvatting van elk gesprek staat direct bij de klant.</li>
-  </ul>
+  <div class="oe_row oe_spaced">
+    <h2 style="color:#14285a">What it does</h2>
+    <ul style="font-size:15px">
+      <li><b>Call log in Odoo</b> — every inbound or outbound RingAI call as a record: caller, AI summary, transcript, duration and direction.</li>
+      <li><b>Automatic follow-up</b> — a call that needs follow-up becomes a call-back activity on the right contact.</li>
+      <li><b>Per company</b> — each Odoo company connects to its own RingAI tenant; multi-company out of the box.</li>
+      <li><b>AI feedback in your CRM</b> — each call's summary sits next to the customer.</li>
+    </ul>
+  </div>
 
-  <h2 style="color:#14285a">Screenshots</h2>
-  <img src="screenshot_calls.png" style="width:100%;border:1px solid #e2e6f0;border-radius:8px;margin:8px 0"/>
-  <img src="screenshot_call.png" style="width:100%;border:1px solid #e2e6f0;border-radius:8px;margin:8px 0"/>
+  <div class="oe_row oe_spaced">
+    <h2 style="color:#14285a">Screenshots</h2>
+    <img class="img-fluid" src="screenshot_calls.png" style="border:1px solid #e2e6f0; margin-bottom:12px"/>
+    <img class="img-fluid" src="screenshot_call.png" style="border:1px solid #e2e6f0"/>
+  </div>
 
-  <h2 style="color:#14285a">Hoe het werkt</h2>
-  <p style="font-size:15px;line-height:1.7"><b>RingAI</b> levert de spraak en de intelligentie (AI-telefoniste op Voys/SIP); Odoo is je klant- en opvolgsysteem. De connector haalt de gesprekken op via de beveiligde RingAI-API (per-bedrijf connector-key) en koppelt ze aan je contacten. Base URL instellen onder <b>Instellingen -> RingAI</b>, de connector-key per bedrijf onder <b>Instellingen -> Bedrijven</b>. Een geplande taak synct automatisch elke 15 minuten.</p>
+  <div class="oe_row oe_spaced">
+    <h2 style="color:#14285a">External service &amp; data</h2>
+    <p style="font-size:15px">This module is a connector to the <b>RingAI</b> voice service and <b>requires an active RingAI account with a per-company connector key</b> to show data. Set the base URL under <i>Settings &#8594; RingAI</i> and the connector key per company under <i>Settings &#8594; Companies</i>.</p>
+    <p style="font-size:15px"><b>Data sent:</b> the connector sends only the connector key over HTTPS to authenticate, and reads back that tenant's calls (caller number/name, summary, transcript, duration). No database access is required. You keep ownership of your data at all times.</p>
+  </div>
 
-  <h2 style="color:#14285a">Vereisten</h2>
-  <ul style="font-size:15px;line-height:1.7">
-    <li>Een actief RingAI-account (ringai.nl).</li>
-    <li>Per Odoo-bedrijf een RingAI <b>connector-key</b> (Instellingen -> Bedrijven). De key bepaalt van welke tenant de gesprekken komen; geen databasetoegang nodig.</li>
-  </ul>
-
-  <p style="font-size:13px;color:#5d6b86;margin-top:24px">Woon IoT BV · <a href="https://ringai.nl" style="color:#14285a">ringai.nl</a> · info@ringai.nl</p>
+  <div class="oe_row oe_spaced">
+    <h2 style="color:#14285a">Requirements</h2>
+    <ul style="font-size:15px">
+      <li>An active RingAI account with a connector key per company.</li>
+      <li>Python <span style="font-family:monospace">requests</span> on the Odoo server.</li>
+    </ul>
+  </div>
 </section>
