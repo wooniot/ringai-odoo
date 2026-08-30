@@ -1,33 +1,19 @@
 # -*- coding: utf-8 -*-
-"""RingAI data-access — via de RingAI read-API (per-tenant connector-key).
-
-Geen DB-credentials bij de klant, geen cross-tenant toegang. De klant vult per
-Odoo-bedrijf zijn eigen connector-key in (Instellingen -> Bedrijven); de base URL
-is globaal (Instellingen -> RingAI).
-"""
 import logging
 from datetime import datetime, timezone
-
 from odoo import api, models
-
 _logger = logging.getLogger(__name__)
-
 DEFAULT_BASE_URL = "https://ringai.nl"
-
-
 class RingaiClient(models.AbstractModel):
     _name = "ringai.client"
     _description = "RingAI API-client (read-only)"
-
     @api.model
     def _base_url(self):
         base = self.env["ir.config_parameter"].sudo().get_param(
             "ringai_connector.base_url") or DEFAULT_BASE_URL
         return base.rstrip("/")
-
     @api.model
     def _get(self, path, api_key):
-        """GET op de RingAI-API met de connector-key. None bij fout/geen key."""
         if not api_key:
             return None
         try:
@@ -51,10 +37,8 @@ class RingaiClient(models.AbstractModel):
             return resp.json()
         except Exception:
             return None
-
     @api.model
     def _parse_dt(self, s):
-        """ISO-string (evt. met tz) -> naïeve UTC voor Odoo Datetime-velden."""
         if not s:
             return False
         try:
@@ -64,7 +48,6 @@ class RingaiClient(models.AbstractModel):
         if dt.tzinfo is not None:
             dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
         return dt
-
     @api.model
     def _fetch_calls(self, api_key, limit=200):
         data = self._get("/api/connector/calls?limit=%d" % int(limit), api_key)
@@ -88,7 +71,6 @@ class RingaiClient(models.AbstractModel):
                 "user_note": r.get("user_note") or "",
             })
         return out
-
     @api.model
     def _test_connection(self, api_key):
         data = self._get("/api/connector/me", api_key)

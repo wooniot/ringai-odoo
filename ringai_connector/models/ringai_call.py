@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
-
 from odoo import _, api, fields, models
-
 _logger = logging.getLogger(__name__)
-
-
 class RingaiCall(models.Model):
     _name = "ringai.call"
     _description = "RingAI gesprek"
     _order = "started_at desc"
     _rec_name = "display_title"
-
     ringai_id = fields.Char(string="RingAI id", index=True, required=True)
     company_id = fields.Many2one(
         "res.company", string="Bedrijf", required=True,
@@ -34,18 +29,14 @@ class RingaiCall(models.Model):
     followed_up = fields.Boolean(string="Opgevolgd")
     user_note = fields.Text(string="Notitie")
     display_title = fields.Char(string="Titel", compute="_compute_title", store=True)
-
     _sql_constraints = [
         ("ringai_id_uniq", "unique(ringai_id)", "Dit RingAI-gesprek bestaat al."),
     ]
-
     @api.depends("caller_name", "caller_number", "started_at")
     def _compute_title(self):
         for c in self:
             who = c.caller_name or c.caller_number or _("Onbekend")
             c.display_title = "%s — %s" % (who, c.started_at or "")
-
-    # ---- sync ----
     @api.model
     def _match_partner(self, company, number, name):
         if not number:
@@ -54,7 +45,6 @@ class RingaiCall(models.Model):
         digits = "".join(ch for ch in number if ch.isdigit())[-9:]
         partner = False
         if digits:
-            # multi-company veilig: alleen dit bedrijf of gedeelde contacten
             partner = Partner.search([
                 ("phone", "ilike", digits),
                 "|", ("company_id", "=", company.id), ("company_id", "=", False),
@@ -65,7 +55,6 @@ class RingaiCall(models.Model):
                 "company_id": company.id, "is_company": False,
             })
         return partner and partner.id
-
     @api.model
     def _sync_company(self, company):
         key = (company.ringai_api_key or "").strip()
@@ -91,7 +80,6 @@ class RingaiCall(models.Model):
                 "user_note": r["user_note"],
             }
             if existing:
-                # partner alsnog koppelen als die eerder niet matchte
                 if not existing.partner_id:
                     vals["partner_id"] = self._match_partner(
                         company, r["caller_number"], r["caller_name"])
@@ -105,9 +93,8 @@ class RingaiCall(models.Model):
                 made += 1
             rec._ensure_followup_activity()
         return made
-
     def _ensure_followup_activity(self):
-        """Maak één terugbel-activiteit op de partner voor open opvolg-gesprekken."""
+        """Ensure followup activity."""
         self.ensure_one()
         if not (self.needs_followup and not self.followed_up and self.partner_id):
             return
@@ -129,7 +116,6 @@ class RingaiCall(models.Model):
             "note": (self.summary or "")[:2000],
             "date_deadline": fields.Date.context_today(self),
         })
-
     @api.model
     def action_sync_all(self):
         total = 0
@@ -145,6 +131,5 @@ class RingaiCall(models.Model):
                 "type": "success", "sticky": False,
             },
         }
-
     def action_mark_followed_up(self):
         self.write({"followed_up": True})

@@ -20,7 +20,6 @@
             </list>
         </field>
     </record>
-
     <record id="view_ringai_call_form" model="ir.ui.view">
         <field name="name">ringai.call.form</field>
         <field name="model">ringai.call</field>
@@ -66,7 +65,6 @@
             </form>
         </field>
     </record>
-
     <record id="view_ringai_call_search" model="ir.ui.view">
         <field name="name">ringai.call.search</field>
         <field name="model">ringai.call</field>
@@ -86,7 +84,6 @@
             </search>
         </field>
     </record>
-
     <record id="action_ringai_calls" model="ir.actions.act_window">
         <field name="name">Gesprekken</field>
         <field name="res_model">ringai.call</field>
@@ -99,7 +96,6 @@
                en druk op <b>Sync nu</b> onder Instellingen -> RingAI.</p>
         </field>
     </record>
-
     <record id="action_server_ringai_sync" model="ir.actions.server">
         <field name="name">RingAI: sync nu</field>
         <field name="model_id" ref="model_ringai_call"/>
