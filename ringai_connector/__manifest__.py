@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "RingAI Voice Connector",
-    "version": "19.0.2.0.0",
+    "version": "19.0.3.0.0",
     "category": "Sales/CRM",
     "summary": "Show your RingAI AI phone assistant calls in Odoo: AI summaries and automatic call-back tasks per customer.",
     "description": """

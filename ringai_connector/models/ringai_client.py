@@ -72,6 +72,35 @@ class RingaiClient(models.AbstractModel):
             })
         return out
     @api.model
+    def _post(self, path, api_key, payload):
+        """POST naar de RingAI-API (twee-weg). True bij succes."""
+        if not api_key:
+            return False
+        try:
+            import requests
+        except Exception:
+            return False
+        try:
+            resp = requests.post(self._base_url() + path,
+                                  headers={"X-Connector-Key": api_key},
+                                  json=payload, timeout=15)
+        except Exception as exc:
+            _logger.warning("RingAI-API push onbereikbaar: %s", type(exc).__name__)
+            return False
+        if resp.status_code != 200:
+            _logger.warning("RingAI-API push status %s", resp.status_code)
+            return False
+        return True
+
+    @api.model
+    def _push_followup(self, api_key, ringai_id, done):
+        return self._post("/api/connector/calls/%s/followup" % ringai_id, api_key, {"done": bool(done)})
+
+    @api.model
+    def _push_note(self, api_key, ringai_id, note):
+        return self._post("/api/connector/calls/%s/note" % ringai_id, api_key, {"note": note or ""})
+
+    @api.model
     def _test_connection(self, api_key):
         data = self._get("/api/connector/me", api_key)
         if data and data.get("tenant"):

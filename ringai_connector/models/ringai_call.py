@@ -83,7 +83,7 @@ class RingaiCall(models.Model):
                 if not existing.partner_id:
                     vals["partner_id"] = self._match_partner(
                         company, r["caller_number"], r["caller_name"])
-                existing.write(vals)
+                existing.with_context(ringai_no_push=True).write(vals)
                 rec = existing
             else:
                 vals["ringai_id"] = r["ringai_id"]
@@ -133,3 +133,18 @@ class RingaiCall(models.Model):
         }
     def action_mark_followed_up(self):
         self.write({"followed_up": True})
+
+    def write(self, vals):
+        res = super().write(vals)
+        if not self.env.context.get("ringai_no_push") and (
+                "followed_up" in vals or "user_note" in vals):
+            Client = self.env["ringai.client"]
+            for rec in self:
+                key = rec.company_id.ringai_api_key
+                if not key or not rec.ringai_id:
+                    continue
+                if "followed_up" in vals:
+                    Client._push_followup(key, rec.ringai_id, rec.followed_up)
+                if "user_note" in vals:
+                    Client._push_note(key, rec.ringai_id, rec.user_note or "")
+        return res
