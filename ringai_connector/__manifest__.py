@@ -23,7 +23,7 @@ tenant's calls (caller number/name, summary, transcript, duration). No database
 access is required and you keep ownership of your data at all times.
 """,
     "author": "Woon IoT BV (RingAI)",
-    "website": "https://ringai.nl",
+    "website": "https://ringai.nl/odoo",
     "license": "LGPL-3",
     "depends": ["base", "mail", "contacts"],
     "external_dependencies": {"python": ["requests"]},
