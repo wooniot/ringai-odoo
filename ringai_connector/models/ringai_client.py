@@ -20,7 +20,7 @@ DEFAULTS = {
     "port": "5433",
     "dbname": "aireceptionist",
     "user": "aireceptionist",
-    "password": "aireceptionist",
+    "password": "",  # NOOIT hardcoden — via Instellingen -> RingAI (config parameter)
 }
 
 
